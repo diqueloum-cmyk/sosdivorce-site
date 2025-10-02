@@ -1,0 +1,18 @@
+{
+  "name": "sosdivorce-site",
+  "version": "1.0.0",
+  "description": "Site web sosdivorce.fr avec chatbot IA et système d'inscription",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'No build step required'",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "vercel": "^32.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

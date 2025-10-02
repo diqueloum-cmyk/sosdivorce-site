@@ -1,0 +1,13 @@
+{
+  "functions": {
+    "api/chat.js": {
+      "maxDuration": 30
+    },
+    "api/signup.js": {
+      "maxDuration": 10
+    }
+  },
+  "env": {
+    "OPENAI_API_KEY": "@openai-api-key"
+  }
+}
