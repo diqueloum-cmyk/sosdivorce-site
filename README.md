@@ -10,6 +10,7 @@ Site web professionnel pour conseil juridique en divorce avec chatbot IA intégr
 - **Interface responsive** avec Tailwind CSS
 - **SEO optimisé** pour le référencement Google
 - **Backend serverless** avec Vercel
+- **Clé API sécurisée** côté serveur
 
 ## 📁 Structure du projet
 
@@ -130,3 +131,4 @@ Vérifiez la configuration HTTPS en production.
 ## 📞 Support
 
 Pour toute question technique, consultez la documentation Vercel ou OpenAI.
+

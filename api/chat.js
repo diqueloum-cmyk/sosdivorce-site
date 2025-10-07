@@ -36,6 +36,16 @@ export default async function handler(req, res) {
       });
     }
 
+    // Vérifier que la clé API est présente
+    if (!process.env.OPENAI_API_KEY) {
+      console.error('OPENAI_API_KEY not found in environment variables');
+      return res.status(500).json({ 
+        error: 'Configuration manquante. Veuillez contacter l\'administrateur.' 
+      });
+    }
+
+    console.log('Using OpenAI API key:', process.env.OPENAI_API_KEY.substring(0, 10) + '...');
+
     // Appeler l'API OpenAI
     const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -110,3 +120,4 @@ function parseCookies(cookieHeader) {
   }
   return cookies;
 }
+

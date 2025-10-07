@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administration - sosdivorce.fr</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'system-ui', sans-serif; }
+  </style>
+</head>
+<body class="bg-gray-100">
+  <div class="container mx-auto px-4 py-8">
+    <div class="bg-white rounded-lg shadow-lg p-6">
+      <h1 class="text-3xl font-bold text-blue-900 mb-6">Administration - sosdivorce.fr</h1>
+      
+      <!-- Statistiques -->
+      <div class="grid md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-blue-50 p-4 rounded-lg">
+          <h3 class="text-lg font-semibold text-blue-900">Total Utilisateurs</h3>
+          <p id="totalUsers" class="text-2xl font-bold text-blue-600">-</p>
+        </div>
+        <div class="bg-green-50 p-4 rounded-lg">
+          <h3 class="text-lg font-semibold text-green-900">Inscriptions Aujourd'hui</h3>
+          <p id="todayUsers" class="text-2xl font-bold text-green-600">-</p>
+        </div>
+        <div class="bg-purple-50 p-4 rounded-lg">
+          <h3 class="text-lg font-semibold text-purple-900">Dernier Utilisateur</h3>
+          <p id="lastUser" class="text-sm text-purple-600">-</p>
+        </div>
+      </div>
+
+      <!-- Bouton de rafraîchissement -->
+      <div class="mb-6">
+        <button onclick="loadStats()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+          Actualiser les données
+        </button>
+        <button onclick="loadUsers()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 ml-2">
+          Voir tous les utilisateurs
+        </button>
+      </div>
+
+      <!-- Liste des utilisateurs -->
+      <div class="mb-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Utilisateurs Inscrits</h2>
+        <div id="usersList" class="space-y-2">
+          <p class="text-gray-500">Cliquez sur "Voir tous les utilisateurs" pour charger la liste</p>
+        </div>
+      </div>
+
+      <!-- Messages d'erreur -->
+      <div id="errorMessage" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4"></div>
+    </div>
+  </div>
+
+  <script>
+    // Charger les statistiques au démarrage
+    document.addEventListener('DOMContentLoaded', function() {
+      loadStats();
+    });
+
+    async function loadStats() {
+      try {
+        const response = await fetch('/api/signup.js', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          document.getElementById('totalUsers').textContent = data.stats.totalUsers;
+          document.getElementById('todayUsers').textContent = data.stats.todayUsers;
+          
+          if (data.stats.lastUser) {
+            document.getElementById('lastUser').textContent = 
+              `${data.stats.lastUser.firstName} ${data.stats.lastUser.lastName} (${data.stats.lastUser.email})`;
+          } else {
+            document.getElementById('lastUser').textContent = 'Aucun utilisateur';
+          }
+        } else {
+          throw new Error(data.error || 'Erreur lors du chargement des statistiques');
+        }
+      } catch (error) {
+        showError('Erreur: ' + error.message);
+      }
+    }
+
+    async function loadUsers() {
+      try {
+        const response = await fetch('/api/signup.js', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ action: 'list' })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          displayUsers(data.users);
+        } else {
+          throw new Error(data.error || 'Erreur lors du chargement des utilisateurs');
+        }
+      } catch (error) {
+        showError('Erreur: ' + error.message);
+      }
+    }
+
+    function displayUsers(users) {
+      const usersList = document.getElementById('usersList');
+      
+      if (users.length === 0) {
+        usersList.innerHTML = '<p class="text-gray-500">Aucun utilisateur inscrit</p>';
+        return;
+      }
+
+      const usersHTML = users.map(user => `
+        <div class="bg-gray-50 p-4 rounded-lg border">
+          <div class="flex justify-between items-start">
+            <div>
+              <h4 class="font-semibold text-gray-800">${user.firstName} ${user.lastName}</h4>
+              <p class="text-gray-600">${user.email}</p>
+              <p class="text-sm text-gray-500">Inscrit le: ${new Date(user.registeredAt).toLocaleDateString('fr-FR')}</p>
+            </div>
+            <div class="text-sm text-gray-500">
+              ID: ${user.id}
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      usersList.innerHTML = usersHTML;
+    }
+
+    function showError(message) {
+      const errorDiv = document.getElementById('errorMessage');
+      errorDiv.textContent = message;
+      errorDiv.classList.remove('hidden');
+      
+      setTimeout(() => {
+        errorDiv.classList.add('hidden');
+      }, 5000);
+    }
+  </script>
+</body>
+</html>
