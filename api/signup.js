@@ -82,8 +82,40 @@ async function handleRegister(firstName, lastName, email, res) {
     });
   }
 
-  // Sauvegarder en base de données
+  // Sauvegarder en base de données locale
   const user = addUser({ firstName, lastName, email });
+
+  // Envoyer vers Google Sheets via webhook
+  try {
+    const SHEET_ID = '1cfJApHpVD1bIbb9IWrePIIO1j0YhjNjBmOLB7S8Mhzk';
+    const webhookUrl = process.env.GOOGLE_WEBHOOK_URL;
+
+    if (webhookUrl) {
+      const registeredAt = new Date().toLocaleString('fr-FR', {
+        timeZone: 'Europe/Paris',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      // Envoyer via webhook (Make.com ou Zapier)
+      await fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nom: lastName,
+          prenom: firstName,
+          email: email,
+          date: registeredAt
+        })
+      }).catch(err => console.error('Erreur Google Sheets:', err));
+    }
+  } catch (error) {
+    console.error('Erreur envoi Google Sheets:', error);
+    // Ne pas bloquer l'inscription si Google Sheets échoue
+  }
 
   // Définir les cookies d'inscription
   const oneYear = 365 * 24 * 60 * 60; // 1 an en secondes
